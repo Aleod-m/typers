@@ -1,4 +1,6 @@
 {
+  description = "Rust type level programming.";
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils = {
