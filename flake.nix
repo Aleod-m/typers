@@ -65,10 +65,6 @@
           });
         };
 
-        apps.default = flake-utils.lib.mkApp {
-          drv = my-crate;
-        };
-
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = rust-env;
         };
