@@ -32,6 +32,7 @@ macro_rules! tlist {
 pub trait TList: Sized + seal::Sealed {
     type IsEmpty: Bool;
     type Len: Unsigned;
+    const LEN: usize = <Self::Len as Unsigned>::USIZE;
 
     type Push<T>: TList;
     type Pop: TList;
