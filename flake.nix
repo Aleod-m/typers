@@ -22,6 +22,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        lib = pkgs.lib;
         # Rust setup.
         fenixPkgs = fenix.packages.${system};
         rust-toolchain = fenixPkgs.stable.toolchain;
@@ -34,7 +35,13 @@
         # Crane setup.
         craneLib = (crane.mkLib pkgs).overrideToolchain rust-toolchain;
         # Source.
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
+        src = let 
+          markdownFilter = path: _type: builtins.match ".*md$" path != null;
+        in lib.cleanSourceWith {
+          src = (craneLib.path ./.);
+          filter = path: type: (markdownFilter path type) || (craneLib.filterCargoSources path type);
+        };
+
         commonArgs = {
           inherit src;
           buildInputs = [ ];

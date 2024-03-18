@@ -1,9 +1,9 @@
-use std::marker;
 use crate::{
-    num::bit::{Bit, B0, B1, self},
-    bool::{Bool, self},
+    bool::{self, Bool},
+    num::bit::{self, Bit, B0, B1},
     seal, Invalid,
 };
+use std::marker;
 
 pub type If<C, A, B> = <C as Bool>::Ifuint<A, B>;
 
@@ -40,7 +40,6 @@ pub trait Unsigned: seal::Sealed {
     #[doc(hidden)]
     type Mul<Rhs: Unsigned>: Unsigned;
 }
-
 
 /// The most significant bits of `Self`.
 pub type Msb<U> = <U as Unsigned>::Msb;
@@ -133,12 +132,20 @@ impl<Lsb_: Bit> Unsigned for Last<Lsb_> {
 
     type Add<Rhs: Unsigned> = If<bit::IsZero<Lsb_>, /*Then*/ Rhs, /*Else*/ Inc<Rhs>>;
     type AddWithCarry<Rhs: Unsigned, C: Bit> = UInt<
-        If<bit::IsZero<bit::FullCarry<Lsb_, Lsb<Rhs>, C>>,/*Then*/ Rhs::Msb,/*Else*/ Inc<Rhs::Msb>>,
+        If<
+            bit::IsZero<bit::FullCarry<Lsb_, Lsb<Rhs>, C>>,
+            /*Then*/ Rhs::Msb,
+            /*Else*/ Inc<Rhs::Msb>,
+        >,
         bit::FullAdd<Lsb_, Lsb<Rhs>, C>,
     >;
 
-    type Sub<Rhs: Unsigned> = If<bit::IsZero<Lsb_>,/*Then*/ Rhs, /*Else*/ Dec<Rhs>>;
-    type SubWithBorrow<Rhs: Unsigned, B: Bit> = If<bit::IsZero<Lsb_>,/*Then*/ Sub<Rhs, Last<B>>, /*Else*/ Sub<Dec<Rhs>, Last<B>>>;
+    type Sub<Rhs: Unsigned> = If<bit::IsZero<Lsb_>, /*Then*/ Rhs, /*Else*/ Dec<Rhs>>;
+    type SubWithBorrow<Rhs: Unsigned, B: Bit> = If<
+        bit::IsZero<Lsb_>,
+        /*Then*/ Sub<Rhs, Last<B>>,
+        /*Else*/ Sub<Dec<Rhs>, Last<B>>,
+    >;
 
     type IsZero = bit::IsZero<Lsb_>;
     type RmExtraBits = Self;
@@ -152,13 +159,15 @@ impl<Msbs: Unsigned, Lsb_: Bit> Unsigned for UInt<Msbs, Lsb_> {
     type Bsr = Msbs;
     type Bsl = UInt<Self, B0>;
 
-    type Inc = If<bit::IsZero<Lsb_>, /*Then*/ UInt<Msbs, B1>, /*Else*/ UInt<Inc<Msbs>, B0>>;
-    type Dec = If<bit::IsZero<Lsb_>, /*Then*/ UInt<Dec<Msbs>, B1>, /*Else*/ UInt<Msbs, B0>>;
+    type Inc =
+        If<bit::IsZero<Lsb_>, /*Then*/ UInt<Msbs, B1>, /*Else*/ UInt<Inc<Msbs>, B0>>;
+    type Dec =
+        If<bit::IsZero<Lsb_>, /*Then*/ UInt<Dec<Msbs>, B1>, /*Else*/ UInt<Msbs, B0>>;
 
     type Add<Rhs: Unsigned> = AddWithCarry<Self, Rhs, B0>;
     type AddWithCarry<Rhs: Unsigned, C: Bit> = UInt<
-        AddWithCarry<Msbs, Rhs::Msb, bit::FullCarry<Lsb_, Rhs::Lsb, C>>, 
-        bit::FullAdd<Lsb_, Lsb<Rhs>, C>
+        AddWithCarry<Msbs, Rhs::Msb, bit::FullCarry<Lsb_, Rhs::Lsb, C>>,
+        bit::FullAdd<Lsb_, Lsb<Rhs>, C>,
     >;
 
     type Sub<Rhs: Unsigned> = RmExtraBits<SubWithBorrow<Self, Rhs, B0>>;
@@ -168,25 +177,22 @@ impl<Msbs: Unsigned, Lsb_: Bit> Unsigned for UInt<Msbs, Lsb_> {
     >;
 
     type IsZero = bool::And<bit::IsZero<Lsb_>, Msbs::IsZero>;
-    type RmExtraBits = If<Self::IsZero, /*Then*/ Last<B0>, /*Else*/ UInt<RmExtraBits<Msbs>, Lsb_>>;
-    type Mul<Rhs: Unsigned> = Add<
-        If<bit::IsZero<Lsb_>, /*Then*/ Last<B0>, /*Else*/ Rhs>,
-        Bsl<Mul<Msbs, Rhs>>,
-    >;
+    type RmExtraBits =
+        If<Self::IsZero, /*Then*/ Last<B0>, /*Else*/ UInt<RmExtraBits<Msbs>, Lsb_>>;
+    type Mul<Rhs: Unsigned> =
+        Add<If<bit::IsZero<Lsb_>, /*Then*/ Last<B0>, /*Else*/ Rhs>, Bsl<Mul<Msbs, Rhs>>>;
 }
 
-
-
-pub type U0  = uint!(B0);
-pub type U1  = uint!(B1);
-pub type U2  = uint!(B1, B0);
-pub type U3  = uint!(B1, B1);
-pub type U4  = uint!(B1, B0, B0);
-pub type U5  = uint!(B1, B0, B1);
-pub type U6  = uint!(B1, B1, B0);
-pub type U7  = uint!(B1, B1, B1);
-pub type U8  = uint!(B1, B0, B0, B0);
-pub type U9  = uint!(B1, B0, B0, B1);
+pub type U0 = uint!(B0);
+pub type U1 = uint!(B1);
+pub type U2 = uint!(B1, B0);
+pub type U3 = uint!(B1, B1);
+pub type U4 = uint!(B1, B0, B0);
+pub type U5 = uint!(B1, B0, B1);
+pub type U6 = uint!(B1, B1, B0);
+pub type U7 = uint!(B1, B1, B1);
+pub type U8 = uint!(B1, B0, B0, B0);
+pub type U9 = uint!(B1, B0, B0, B1);
 pub type U10 = uint!(B1, B0, B1, B0);
 pub type U11 = uint!(B1, B0, B1, B1);
 pub type U12 = uint!(B1, B1, B0, B0);

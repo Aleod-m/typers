@@ -1,7 +1,8 @@
 #![doc = include_str!("./bool.md")]
 use crate::{
+    list::TList,
     num::{bit::Bit, unsigned::Unsigned},
-    seal, Invalid, list::TList,
+    seal, Invalid,
 };
 
 /// A trait implemented for all boolean types values.
@@ -43,7 +44,6 @@ pub type Xor<A, B> = <A as Bool>::Xor<B>;
 /// If `Self` is [True] construct type `A` otherwise `B`.
 pub type If<C, A, B> = <C as Bool>::If<A, B>;
 
-
 impl Bool for Invalid {
     #[doc(hidden)]
     const BOOL: bool = { panic!("Invalid Bool type value!") };
@@ -62,7 +62,6 @@ impl Bool for Invalid {
     fn cond<A, B>(_: impl FnOnce() -> A, _: impl FnOnce() -> B) -> Self::If<A, B> {
         panic!("Attempted to resolve an Invalid condition!")
     }
-
 }
 
 /// The boolean value `true` in type land.
@@ -84,7 +83,6 @@ impl Bool for True {
     fn cond<A, B>(a: impl FnOnce() -> A, _: impl FnOnce() -> B) -> Self::If<A, B> {
         a()
     }
-
 }
 
 /// The boolean value `false` in type land.

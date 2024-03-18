@@ -63,7 +63,7 @@ pub trait Bit: seal::Sealed {
 /// Short Hand type function.
 pub type IsZero<B> = <B as Bit>::IsZero;
 /// Short Hand type function.
-pub type Not<B> = <B as Bit>::Not; 
+pub type Not<B> = <B as Bit>::Not;
 /// Short Hand type function.
 pub type And<Lhs, Rhs> = <Lhs as Bit>::And<Rhs>;
 /// Short Hand type function.

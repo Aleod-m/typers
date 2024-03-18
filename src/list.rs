@@ -278,7 +278,7 @@ impl<Head, T, TailIdx, Tail: TList + TLFind<T, TailIdx>> TLFind<T, There<TailIdx
 
 /// A trait that allows indexing into the Type List using an Unsigned type. OOB indexing returns
 /// Unit.
-pub trait TListIndex<'a>: NonEmpty 
+pub trait TListIndex<'a>: NonEmpty
 where
     Self: 'a,
 {
@@ -290,23 +290,23 @@ where
     fn index<Idx: Unsigned>(&'a self) -> Self::Index<Idx>;
     fn index_mut<Idx: Unsigned>(&'a mut self) -> Self::IndexMut<Idx>;
 }
-impl<'a, H> TListIndex<'a> for Cat<H, End> 
-where 
-    Self: 'a
+impl<'a, H> TListIndex<'a> for Cat<H, End>
+where
+    Self: 'a,
 {
     type Index<Idx: Unsigned> = If<
         IsZero<Idx>,
-        //Then 
+        //Then
         &'a Head<Self>,
-        //Else 
-        Invalid
+        //Else
+        Invalid,
     >;
     type IndexMut<Idx: Unsigned> = If<
         IsZero<Idx>,
-        //Then 
+        //Then
         &'a mut Head<Self>,
-        //Else 
-        Invalid
+        //Else
+        Invalid,
     >;
 
     fn index<Idx: Unsigned>(&'a self) -> Self::Index<Idx> {
@@ -324,18 +324,18 @@ where
 {
     type Index<Idx: Unsigned> = If<
         IsZero<Idx>,
-        //Then 
+        //Then
         &'a Head<Self>,
-        //Else 
-        Index<'a, Tail<Self>, unsigned::Dec<Idx>>  
+        //Else
+        Index<'a, Tail<Self>, unsigned::Dec<Idx>>,
     >;
 
     type IndexMut<Idx: Unsigned> = If<
         IsZero<Idx>,
-        //Then 
+        //Then
         &'a mut Head<Self>,
-        //Else 
-        IndexMut<'a, Tail<Self>, unsigned::Dec<Idx>>  
+        //Else
+        IndexMut<'a, Tail<Self>, unsigned::Dec<Idx>>,
     >;
 
     fn index<Idx: Unsigned>(&'a self) -> Self::Index<Idx> {
@@ -343,7 +343,10 @@ where
     }
 
     fn index_mut<Idx: Unsigned>(&'a mut self) -> Self::IndexMut<Idx> {
-        IsZero::<Idx>::cond(|| &mut self.head, || self.tail.index_mut::<unsigned::Dec<Idx>>())
+        IsZero::<Idx>::cond(
+            || &mut self.head,
+            || self.tail.index_mut::<unsigned::Dec<Idx>>(),
+        )
     }
 }
 
