@@ -91,7 +91,7 @@ impl TList for Invalid {
 
     type _Reverse<L: TList> = Invalid;
 
-    fn push<E>(self, elem: E) -> Push<Self, E> {
+    fn push<E>(self, _elem: E) -> Push<Self, E> {
         unreachable!()
     }
 
@@ -99,11 +99,11 @@ impl TList for Invalid {
         unreachable!()
     }
 
-    fn concat<L: TList>(self, other: L) -> Concat<Self, L> {
+    fn concat<L: TList>(self, _other: L) -> Concat<Self, L> {
         unreachable!()
     }
 
-    fn _reverse<T: TList>(self, list: T, _key: seal::Key) -> Self::_Reverse<T> {
+    fn _reverse<T: TList>(self, _list: T, _key: seal::Key) -> Self::_Reverse<T> {
         unreachable!()
     }
 }

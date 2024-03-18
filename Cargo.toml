@@ -3,5 +3,6 @@ license = "mit"
 name = "typers"
 version = "0.1.0"
 edition = "2021"
+description = "Type level programing"
 
 [dependencies]
