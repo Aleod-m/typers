@@ -1,25 +1,51 @@
+#![doc = include_str!("./bool.md")]
 use crate::{
-    num::{IBit, Unsigned},
-    seal, Invalid,
+    num::{bit::Bit, unsigned::Unsigned},
+    seal, Invalid, list::TList,
 };
 
+/// A trait implemented for all boolean types values.
 pub trait Bool: seal::Sealed {
+    /// Value equivalent to the type.
     const BOOL: bool;
+    #[doc(hidden)]
     type Not: Bool;
+    #[doc(hidden)]
     type And<B: Bool>: Bool;
+    #[doc(hidden)]
     type Or<B: Bool>: Bool;
+    #[doc(hidden)]
     type Xor<B: Bool>: Bool;
 
+    #[doc(hidden)]
     type If<A, B>;
+    #[doc(hidden)]
     type Ifbool<A: Bool, B: Bool>: Bool;
-    type Ifbit<A: IBit, B: IBit>: IBit;
+    #[doc(hidden)]
+    type Ifbit<A: Bit, B: Bit>: Bit;
+    #[doc(hidden)]
     type Ifuint<A: Unsigned, B: Unsigned>: Unsigned;
+    #[doc(hidden)]
+    type Iflist<A: TList, B: TList>: TList;
 
     /// Branches need to be closures because they need to be lazily evaluated.
-    fn cond<A, B>(a: impl Fn() -> A, b: impl Fn() -> B) -> Self::If<A, B>;
+    fn cond<A, B>(a: impl FnOnce() -> A, b: impl FnOnce() -> B) -> Self::If<A, B>;
 }
 
+/// Result of the boolean negation.
+pub type Not<B> = <B as Bool>::Not;
+/// Result of the boolean and between `Self` and `B`.
+pub type And<A, B> = <A as Bool>::And<B>;
+/// Result of the boolean or between `Self` and `B`.
+pub type Or<A, B> = <A as Bool>::Or<B>;
+/// Result of the boolean xor between `Self` and `B`.
+pub type Xor<A, B> = <A as Bool>::Xor<B>;
+/// If `Self` is [True] construct type `A` otherwise `B`.
+pub type If<C, A, B> = <C as Bool>::If<A, B>;
+
+
 impl Bool for Invalid {
+    #[doc(hidden)]
     const BOOL: bool = { panic!("Invalid Bool type value!") };
 
     type Not = Invalid;
@@ -29,14 +55,17 @@ impl Bool for Invalid {
 
     type If<A, B> = Invalid;
     type Ifbool<A: Bool, B: Bool> = Invalid;
-    type Ifbit<A: IBit, B: IBit> = Invalid;
+    type Ifbit<A: Bit, B: Bit> = Invalid;
     type Ifuint<A: Unsigned, B: Unsigned> = Invalid;
+    type Iflist<A: TList, B: TList> = Invalid;
 
-    fn cond<A, B>(_: impl Fn() -> A, _: impl Fn() -> B) -> Self::If<A, B> {
+    fn cond<A, B>(_: impl FnOnce() -> A, _: impl FnOnce() -> B) -> Self::If<A, B> {
         panic!("Attempted to resolve an Invalid condition!")
     }
+
 }
 
+/// The boolean value `true` in type land.
 pub struct True;
 impl seal::Sealed for True {}
 impl Bool for True {
@@ -48,14 +77,17 @@ impl Bool for True {
 
     type If<A, B> = A;
     type Ifbool<A: Bool, B: Bool> = A;
-    type Ifbit<A: IBit, B: IBit> = A;
+    type Ifbit<A: Bit, B: Bit> = A;
     type Ifuint<A: Unsigned, B: Unsigned> = A;
+    type Iflist<A: TList, B: TList> = A;
 
-    fn cond<A, B>(a: impl Fn() -> A, _: impl Fn() -> B) -> Self::If<A, B> {
+    fn cond<A, B>(a: impl FnOnce() -> A, _: impl FnOnce() -> B) -> Self::If<A, B> {
         a()
     }
+
 }
 
+/// The boolean value `false` in type land.
 pub struct False;
 impl seal::Sealed for False {}
 impl Bool for False {
@@ -66,11 +98,12 @@ impl Bool for False {
     type Xor<B: Bool> = B;
 
     type If<A, B> = B;
-    type Ifbit<A: IBit, B: IBit> = B;
+    type Ifbit<A: Bit, B: Bit> = B;
     type Ifuint<A: Unsigned, B: Unsigned> = B;
     type Ifbool<A: Bool, B: Bool> = B;
+    type Iflist<A: TList, B: TList> = B;
 
-    fn cond<A, B>(_: impl Fn() -> A, b: impl Fn() -> B) -> Self::If<A, B> {
+    fn cond<A, B>(_: impl FnOnce() -> A, b: impl FnOnce() -> B) -> Self::If<A, B> {
         b()
     }
 }
