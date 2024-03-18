@@ -1,9 +1,12 @@
 [package]
 license = "MIT"
 name = "typers"
-author = "Aleod-m"
+authors = ["Aleod-m adriendml99@protonmail.com"]
 version = "0.1.0"
 edition = "2021"
 description = "Type level programing"
+readme = "README.md"
+repository = "https://github.com/Aleod-m/typers"
+keywords = ["types", "type-level", "list", "numbers"]
 
 [dependencies]
