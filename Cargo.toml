@@ -1,5 +1,5 @@
 [package]
-license = "mit"
+license = "MIT"
 name = "typers"
 author = "Aleod-m"
 version = "0.1.0"
